@@ -11,6 +11,12 @@ use axum::{
 };
 use serde::Deserialize;
 
+fn routes_all() -> Router {
+    Router::new()
+        .route("/hello", get(hander_hello))
+        .route("/greet/{name}", get(handler_greet))
+}
+
 async fn hander_hello(Query(params): Query<HelloParams>) -> impl IntoResponse {
     println!("->> {:<12} - handler_hello - {params:?}", "HANDLER");
     let name = params.name.as_deref().unwrap_or("World!");
@@ -29,9 +35,7 @@ struct HelloParams {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let app = Router::new()
-        .route("/hello", get(hander_hello))
-        .route("/greet/{name}", get(handler_greet));
+    let app = Router::new().merge(routes_all());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
