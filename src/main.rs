@@ -12,6 +12,7 @@ use axum::{
 };
 use rust_axum_full_course::web;
 use serde::Deserialize;
+use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
 
 fn routes_static() -> Router {
@@ -53,6 +54,7 @@ async fn main() -> anyhow::Result<()> {
         .merge(routes_all())
         .merge(web::routes_login::routes())
         .layer(middleware::map_response(main_response_mapper))
+        .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
