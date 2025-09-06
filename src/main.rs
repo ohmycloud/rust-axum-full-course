@@ -7,9 +7,15 @@ use axum::{
     Router,
     extract::{Path, Query},
     response::{Html, IntoResponse},
-    routing::get,
+    routing::{get, get_service},
 };
+use rust_axum_full_course::web;
 use serde::Deserialize;
+use tower_http::services::ServeDir;
+
+fn routes_static() -> Router {
+    Router::new().fallback_service(ServeDir::new("static"))
+}
 
 fn routes_all() -> Router {
     Router::new()
@@ -35,7 +41,10 @@ struct HelloParams {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let app = Router::new().merge(routes_all());
+    let app = Router::new()
+        .merge(routes_all())
+        .merge(web::routes_login::routes())
+        .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     let listener = tokio::net::TcpListener::bind(&addr).await?;
