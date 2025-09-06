@@ -1,0 +1,22 @@
+#### test login in
+POST http://127.0.0.1:8080/api/login
+Content-Type: application/json
+
+{
+    "username": "admin", "password": "admin"
+}
+
+### test create ticket
+POST http://127.0.0.1:8080/api/tickets
+Content-Type: application/json
+
+{
+    "title": "Rakudo Weekly Ticket"
+}
+
+### test list ticket
+GET http://127.0.0.1:8080/api/tickets
+Content-Type: application/json
+
+### test delete ticket
+DELETE http://127.0.0.1:8080/api/tickets/1
