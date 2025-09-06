@@ -1,8 +1,5 @@
 #![allow(unused)]
 
-use std::net::SocketAddr;
-
-use anyhow::Ok;
 use axum::{
     Router,
     extract::{Path, Query},
@@ -10,8 +7,11 @@ use axum::{
     response::{Html, IntoResponse, Response},
     routing::{get, get_service},
 };
-use rust_axum_full_course::web;
+use std::net::SocketAddr;
+use ticket::error::Result;
+
 use serde::Deserialize;
+use ticket::{model::ModelController, web};
 use tower_cookies::CookieManagerLayer;
 use tower_http::services::ServeDir;
 
@@ -49,19 +49,25 @@ struct HelloParams {
 }
 
 #[tokio::main]
-async fn main() -> anyhow::Result<()> {
+async fn main() -> Result<()> {
+    // Initialize the ModelController
+    let mc = ModelController::new().await?;
+
     let app = Router::new()
         .merge(routes_all())
         .merge(web::routes_login::routes())
+        .nest("/api", web::routes_tickets::routes(mc.clone()))
         .layer(middleware::map_response(main_response_mapper))
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("->> LISTENING on http://{addr}\n");
 
-    axum::serve(listener, app.into_make_service()).await?;
+    axum::serve(listener, app.into_make_service())
+        .await
+        .unwrap();
 
     Ok(())
 }

@@ -7,7 +7,7 @@ use serde::Deserialize;
 use serde_json::json;
 use tower_cookies::{Cookie, Cookies};
 
-use crate::{Error, web};
+use crate::{error::Error, web};
 
 #[derive(Debug, Deserialize)]
 struct LoginPayload {

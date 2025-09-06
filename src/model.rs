@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use crate::{Error, Result};
+use crate::{error::Error, error::Result};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize)]

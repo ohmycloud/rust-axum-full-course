@@ -14,5 +14,13 @@ async fn quick_dev() -> anyhow::Result<()> {
     .print()
     .await?;
 
+    hc.do_post("/api/tickets", json!({"title": "New Ticket"}))
+        .await?
+        .print()
+        .await?;
+
+    hc.do_get("/api/tickets").await?.print().await?;
+    hc.do_delete("/api/tickets/1").await?.print().await?;
+
     Ok(())
 }
