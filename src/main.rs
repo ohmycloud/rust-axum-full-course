@@ -6,7 +6,8 @@ use anyhow::Ok;
 use axum::{
     Router,
     extract::{Path, Query},
-    response::{Html, IntoResponse},
+    middleware,
+    response::{Html, IntoResponse, Response},
     routing::{get, get_service},
 };
 use rust_axum_full_course::web;
@@ -34,6 +35,13 @@ async fn handler_greet(Path(name): Path<String>) -> impl IntoResponse {
     Html(format!("How are you, <strong>{name}?</strong>"))
 }
 
+async fn main_response_mapper(res: Response) -> Response {
+    println!("->> {:<12} - main_response_mapper", "RES_MAPPER");
+    println!();
+
+    res
+}
+
 #[derive(Debug, Deserialize)]
 struct HelloParams {
     name: Option<String>,
@@ -44,6 +52,7 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .merge(routes_all())
         .merge(web::routes_login::routes())
+        .layer(middleware::map_response(main_response_mapper))
         .fallback_service(routes_static());
 
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
