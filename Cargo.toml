@@ -17,6 +17,7 @@ tower-http = { version = "0.6.6", features = ["fs"] }
 serde_json = "1.0.143"
 tower-cookies = "0.11.0"
 lazy-regex = "3.4.1"
+async-trait = "0.1.89"
 
 [dev-dependencies]
 httpc-test = "0.1.10"
