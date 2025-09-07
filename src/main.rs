@@ -1,8 +1,9 @@
 #![allow(unused)]
 
 use axum::{
-    Json, Router,
+    Json, Router, debug_handler,
     extract::{Path, Query},
+    http::{Method, Uri},
     middleware,
     response::{Html, IntoResponse, Response},
     routing::{get, get_service},
@@ -10,7 +11,9 @@ use axum::{
 use serde_json::json;
 use std::net::SocketAddr;
 use ticket::{
+    ctx::Ctx,
     error::{Error, Result},
+    log::log_request,
     web::mw_auth::mw_ctx_resolver,
 };
 use uuid::Uuid;
@@ -61,7 +64,21 @@ async fn main_response_mapper(res: Response) -> Response {
             println!("    ->> client_error_body: {client_error_body}");
             (*status_code, Json(client_error_body)).into_response()
         });
+    // Build and log the server log line.
     println!("    ->> server log line - {uuid} - Error: {service_error:?}");
+    let client_error = client_status_error.map(|(_, client_error)| client_error);
+
+    // For logging, we need to extract request information differently
+    // This is a simplified version since we can't access request details here
+    log_request(
+        uuid,
+        Method::GET,
+        "/".parse().unwrap(),
+        None,
+        service_error,
+        client_error,
+    )
+    .await;
 
     println!();
 
