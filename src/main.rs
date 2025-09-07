@@ -8,7 +8,7 @@ use axum::{
     routing::{get, get_service},
 };
 use std::net::SocketAddr;
-use ticket::error::Result;
+use ticket::{error::Result, web::mw_auth::mw_ctx_resolver};
 
 use serde::Deserialize;
 use ticket::{model::ModelController, web};
@@ -61,6 +61,7 @@ async fn main() -> Result<()> {
         .merge(web::routes_login::routes())
         .nest("/api", routes_apis)
         .layer(middleware::map_response(main_response_mapper))
+        .layer(middleware::from_fn_with_state(mc.clone(), mw_ctx_resolver))
         .layer(CookieManagerLayer::new())
         .fallback_service(routes_static());
 
