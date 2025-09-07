@@ -1,6 +1,6 @@
 #[derive(Debug, Clone)]
 pub struct Ctx {
-    user_id: u64,
+    pub user_id: u64,
 }
 
 impl Ctx {

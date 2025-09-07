@@ -1,11 +1,15 @@
 use std::sync::{Arc, Mutex};
 
-use crate::{error::Error, error::Result};
+use crate::{
+    ctx::Ctx,
+    error::{Error, Result},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Ticket {
     pub id: u64,
+    pub cid: u64, // creator of user_id
     pub title: String,
 }
 
@@ -28,11 +32,12 @@ impl ModelController {
 }
 
 impl ModelController {
-    pub async fn create_ticket(&self, ticket: TicketForCreate) -> Result<Ticket> {
+    pub async fn create_ticket(&self, ctx: Ctx, ticket: TicketForCreate) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();
         let id = store.len() as u64;
         let ticket = Ticket {
             id,
+            cid: ctx.user_id,
             title: ticket.title,
         };
 
@@ -40,13 +45,13 @@ impl ModelController {
         Ok(ticket)
     }
 
-    pub async fn list_tickets(&self) -> Result<Vec<Ticket>> {
+    pub async fn list_tickets(&self, _ctx: Ctx) -> Result<Vec<Ticket>> {
         let store = self.tickets_store.lock().unwrap();
         let tickets = store.iter().filter_map(|ticket| ticket.clone()).collect();
         Ok(tickets)
     }
 
-    pub async fn delete_ticket(&self, id: u64) -> Result<Ticket> {
+    pub async fn delete_ticket(&self, _ctx: Ctx, id: u64) -> Result<Ticket> {
         let mut store = self.tickets_store.lock().unwrap();
         let ticket = store.get_mut(id as usize).and_then(|ticket| ticket.take());
         ticket.ok_or(Error::TicketDeleteFailIdNotFound { id })
