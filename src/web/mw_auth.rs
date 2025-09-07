@@ -39,14 +39,10 @@ where
     }
 }
 
-pub async fn mw_require_auth(cookies: Cookies, req: Request, next: Next) -> Result<Response> {
+pub async fn mw_require_auth(ctx: Result<Ctx>, req: Request, next: Next) -> Result<Response> {
     println!("->> {:<12} - mw_require_auth", "MIDDLEWARE");
-    let auth_token = cookies.get(AUTH_TOKEN).map(|c| c.value().to_string());
 
-    // parse token
-    let (_user_id, _exp, _sign) = auth_token
-        .ok_or(Error::AuthFailNoAuthTokenCookie)
-        .and_then(parse_token)?;
+    ctx?;
 
     Ok(next.run(req).await)
 }
