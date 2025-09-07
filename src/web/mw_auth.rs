@@ -51,9 +51,7 @@ pub async fn mw_ctx_resolver(
     }
 
     // Store the ctx in the request extensions
-    if let Ok(result_ctx) = result_ctx {
-        req.extensions_mut().insert(result_ctx);
-    }
+    req.extensions_mut().insert(result_ctx);
 
     Ok(next.run(req).await)
 }
